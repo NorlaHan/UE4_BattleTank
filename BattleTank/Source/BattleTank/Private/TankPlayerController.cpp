@@ -2,6 +2,9 @@
 
 #include "TankPlayerController.h"
 #include "BattleTank.h"
+#include "DrawDebugHelpers.h"
+#include "Math/TwoVectors.h"
+#include "Engine/World.h"
 
 
 
@@ -38,7 +41,31 @@ void ATankPlayerController::AimTowardsCrosshair()
 {
     if (!GetControlledTank()){return;}
     
-    // Get world location if linetrace through crosshair
+    FVector HitLocation;    // Out parameter
+    UE_LOG(LogTemp, Warning, TEXT("HitLocation : %s"), *HitLocation.ToString());
+    // Get world location of linetrace through crosshair
+    GetSightRayHitLocation();
     // If it hits the landscape
         // Tell controlled tank to aim at this point
+}
+
+FVector ATankPlayerController::GetSightRayHitLocation() const
+{
+    FVector OutHitLocation;
+
+    FVector PlayerCameraLocation;   // OUT Parameter
+    FRotator PlayerCameraRotaion;   // OUT Parameter
+    GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerCameraLocation,PlayerCameraRotaion);
+
+    FHitResult HitResult;   // OUT Parameter
+    GetWorld()->LineTraceSingleByObjectType
+    (
+        HitResult, 
+        PlayerCameraLocation, 
+        PlayerCameraLocation + PlayerCameraRotaion.Vector()*9999, 
+        FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), 
+        const FCollisionQueryParams & Params = FCollisionQueryParams::DefaultQueryParam
+    );
+
+    return OutHitLocation;
 }
