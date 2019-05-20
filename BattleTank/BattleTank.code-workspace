@@ -8,6 +8,9 @@
 		}
 	],
 	"settings": {
-		"typescript.tsc.autoDetect": "on"
+		"typescript.tsc.autoDetect": "on",
+		"files.associations": {
+			"*.rh": "cpp"
+		}
 	}
 }

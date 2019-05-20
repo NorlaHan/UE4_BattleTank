@@ -42,30 +42,51 @@ void ATankPlayerController::AimTowardsCrosshair()
     if (!GetControlledTank()){return;}
     
     FVector HitLocation;    // Out parameter
-    UE_LOG(LogTemp, Warning, TEXT("HitLocation : %s"), *HitLocation.ToString());
-    // Get world location of linetrace through crosshair
-    GetSightRayHitLocation();
-    // If it hits the landscape
-        // Tell controlled tank to aim at this point
+
+    if (GetSightRayHitLocation(HitLocation))    // Has "Side-effect", is going to line trace.
+    {                
+        // HitLocation = GetSightRayHitLocation();
+        UE_LOG(LogTemp, Warning, TEXT("HitLocation : %s"), *HitLocation.ToString());
+        // TODO Tell controlled tank to aim at this point
+    }
 }
 
-FVector ATankPlayerController::GetSightRayHitLocation() const
+// Get world location of linetrace through crosshair, true if hits landscape
+bool ATankPlayerController::GetSightRayHitLocation(FVector& OutHitLocation) const   // make no sense now, but it's all over the engine
 {
-    FVector OutHitLocation;
+    //FVector OutHitLocation;
+    OutHitLocation = FVector(1.0f);
 
     FVector PlayerCameraLocation;   // OUT Parameter
     FRotator PlayerCameraRotaion;   // OUT Parameter
     GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerCameraLocation,PlayerCameraRotaion);
-
+    UE_LOG(LogTemp, Warning, TEXT("Camera Location : %s, Rotator : %s"), *PlayerCameraLocation.ToString(), *PlayerCameraRotaion.ToString());
+        
     FHitResult HitResult;   // OUT Parameter
+    FVector LTEnd = (PlayerCameraLocation + PlayerCameraRotaion.Vector()*5000);
+    FCollisionObjectQueryParams TraceObjectParameters(ECollisionChannel::ECC_PhysicsBody);
+    FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetControlledTank());
+    
+
     GetWorld()->LineTraceSingleByObjectType
     (
         HitResult, 
         PlayerCameraLocation, 
-        PlayerCameraLocation + PlayerCameraRotaion.Vector()*9999, 
-        FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), 
-        const FCollisionQueryParams & Params = FCollisionQueryParams::DefaultQueryParam
+        LTEnd, 
+        TraceObjectParameters, 
+        TraceParameters
     );
-
-    return OutHitLocation;
+    AActor* ActorHit = HitResult.GetActor();
+    OutHitLocation = HitResult.Location;
+    
+    if (!ActorHit)
+    {
+        return false;
+    }
+    else
+    {
+        UE_LOG(LogTemp,Warning,TEXT("%s is in range"), *ActorHit->GetName());
+    }
+    
+    return true;
 }

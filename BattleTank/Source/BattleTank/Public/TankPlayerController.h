@@ -26,4 +26,5 @@ private:
 	void AimTowardsCrosshair();
 
 	// Returns the OutHitLocation
-	FVector GetSightRayHitLocation() const;
+	bool GetSightRayHitLocation(FVector&) const;
+};
