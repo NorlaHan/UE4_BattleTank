@@ -54,13 +54,22 @@ void ATankPlayerController::AimTowardsCrosshair()
 // Get world location of linetrace through crosshair, true if hits landscape
 bool ATankPlayerController::GetSightRayHitLocation(FVector& OutHitLocation) const   // make no sense now, but it's all over the engine
 {
-    //FVector OutHitLocation;
+    // Find the crosshair position
+    int32 ViewportSizeX, ViewportSizeY; // Out parameter
+    GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+    auto SCreenLocation = FVector2D(ViewportSizeX*CrossHairXLocation,ViewportSizeY*CrossHairYLocation);
+    UE_LOG(LogTemp, Warning, TEXT("Crosshair coordination : %s"), *SCreenLocation.ToString());
+
+    // "De-projection"  the screen position of the crosshair to a direction
+    // Line-trace along that look direction, and see what we hit (up to max range)
+    
     OutHitLocation = FVector(1.0f);
 
     FVector PlayerCameraLocation;   // OUT Parameter
     FRotator PlayerCameraRotaion;   // OUT Parameter
     GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerCameraLocation,PlayerCameraRotaion);
-    UE_LOG(LogTemp, Warning, TEXT("Camera Location : %s, Rotator : %s"), *PlayerCameraLocation.ToString(), *PlayerCameraRotaion.ToString());
+    //UE_LOG(LogTemp, Warning, TEXT("Camera Location : %s, Rotator : %s"), *PlayerCameraLocation.ToString(), *PlayerCameraRotaion.ToString());
         
     FHitResult HitResult;   // OUT Parameter
     FVector LTEnd = (PlayerCameraLocation + PlayerCameraRotaion.Vector()*5000);
@@ -78,7 +87,7 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector& OutHitLocation) cons
     );
     AActor* ActorHit = HitResult.GetActor();
     OutHitLocation = HitResult.Location;
-    
+
     if (!ActorHit)
     {
         return false;
