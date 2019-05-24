@@ -28,10 +28,19 @@ private:
 
 	UPROPERTY(EditAnywhere)
     float CrossHairYLocation = 0.33333f;
+
+	UPROPERTY(EditAnywhere)
+	float LineTraceRange = 1000000.f;
 	
 	// Moving the barrel so that a shot would hit where the crosshair intersects the world.
 	void AimTowardsCrosshair();
 
 	// Returns the OutHitLocation
-	bool GetSightRayHitLocation(FVector&) const;
+	bool GetSightRayHitLocation(FVector& OutHitLocation) const;
+
+	// Input the ScreenLocation and Returns the CameraWorldLocation and the LookDirection to the input.
+	bool GetLookDirection(FVector2D ScreenLocation,FVector& CameraWorldLocation, FVector& LookDirection) const;
+
+	// From the CameraWorldLocation and LookDirectiion, returns the HitResult.
+	bool GetLookVectorHitLocation(FHitResult& HitResult, FVector CameraWorldLocation, FVector LookDirectiion) const;
 };
